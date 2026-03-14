@@ -163,7 +163,7 @@ export default function HomePage() {
               Pricing
             </Link>
             <a
-              href="https://github.com/agentflow"
+              href="https://github.com/9jcb2jw8gc-cyber/agentflow"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-white transition-colors"
@@ -488,7 +488,7 @@ export default function HomePage() {
                 Pricing
               </Link>
               <a
-                href="https://github.com/agentflow"
+                href="https://github.com/9jcb2jw8gc-cyber/agentflow"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-white transition-colors"
