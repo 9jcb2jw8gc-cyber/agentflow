@@ -8,19 +8,11 @@ export type Plan = "free" | "pro" | "team" | "enterprise";
 
 export type WorkspaceRole = "owner" | "admin" | "member" | "viewer";
 
-export type AgentType =
-  | "conversational"
-  | "coding"
-  | "research"
-  | "orchestrator"
-  | "custom";
+export type AgentType = "coordinator" | "specialist" | "utility";
 
-export type ContextType =
-  | "file"
-  | "url"
-  | "text"
-  | "repository"
-  | "database";
+export type ContextType = "fork" | "inherit";
+
+export type HookType = "PostToolUse" | "PreToolUse";
 
 // ---- Database Row Types ----
 
@@ -97,25 +89,24 @@ export interface AgentNodeData {
   agentType: AgentType;
   model: string;
   systemPrompt: string;
-  tools: string[];
-  contextSources: { type: ContextType; uri: string }[];
-  maxTurns?: number;
+  context: ContextType;
+  tools: Record<string, boolean>;
+  hooks: Record<string, boolean>;
 }
 
 export interface MCPNodeData {
   nodeType: "mcp";
   label: string;
   serverName: string;
-  command: string;
-  args: string[];
-  env: Record<string, string>;
+  url: string;
+  envVars: Record<string, string>;
 }
 
 export interface HookNodeData {
   nodeType: "hook";
   label: string;
-  event: string;
-  handler: string;
+  hookType: HookType;
+  description: string;
 }
 
 export interface AgentFlowEdge {
@@ -125,6 +116,32 @@ export interface AgentFlowEdge {
   sourceHandle?: string;
   targetHandle?: string;
   label?: string;
+}
+
+// ---- Tool Definitions ----
+
+export interface ToolDefinition {
+  name: string;
+  description: string;
+  /** Which agent types this tool is available to */
+  availableTo: AgentType[];
+}
+
+export const COORDINATOR_TOOLS: ToolDefinition[] = [
+  { name: "Task", description: "Delegate tasks to specialist agents", availableTo: ["coordinator"] },
+  { name: "Bash", description: "Execute shell commands", availableTo: ["coordinator", "specialist", "utility"] },
+  { name: "AskUserQuestion", description: "Prompt the user for clarification", availableTo: ["coordinator"] },
+  { name: "WebSearch", description: "Search the web for information", availableTo: ["coordinator", "specialist", "utility"] },
+  { name: "WebFetch", description: "Fetch content from a URL", availableTo: ["coordinator", "specialist", "utility"] },
+  { name: "Read", description: "Read files from the filesystem", availableTo: ["coordinator", "specialist", "utility"] },
+  { name: "Write", description: "Write files to the filesystem", availableTo: ["coordinator", "specialist", "utility"] },
+  { name: "Edit", description: "Edit existing files", availableTo: ["coordinator", "specialist", "utility"] },
+  { name: "Glob", description: "Find files by pattern", availableTo: ["coordinator", "specialist", "utility"] },
+  { name: "Grep", description: "Search file contents with regex", availableTo: ["coordinator", "specialist", "utility"] },
+];
+
+export function getToolsForAgentType(agentType: AgentType): ToolDefinition[] {
+  return COORDINATOR_TOOLS.filter((t) => t.availableTo.includes(agentType));
 }
 
 // ---- Plan Limits ----

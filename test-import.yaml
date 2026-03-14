@@ -1,0 +1,31 @@
+# test-import.yaml — use this to test the import engine
+agentflow_version: "1.0"
+canvas_name: "Test import"
+exported_at: "2026-03-13T00:00:00Z"
+agents:
+  - name: coordinator
+    type: coordinator
+    context: inherit
+    system_prompt: "You are a coordinator. Delegate tasks using the Task tool."
+    allowed_tools: [Task, Bash]
+    hooks: {}
+  - name: specialist-a
+    type: specialist
+    context: fork
+    system_prompt: "You are a specialist agent."
+    allowed_tools: [get_data]
+    hooks:
+      PostToolUse: normalize
+mcp_servers:
+  - name: supabase
+    url: "https://mcp.supabase.com/mcp"
+    env:
+      SUPABASE_URL: "${SUPABASE_URL}"
+      SUPABASE_SERVICE_KEY: "${SUPABASE_SERVICE_KEY}"
+connections:
+  - from: coordinator
+    to: specialist-a
+    via: Task
+  - from: specialist-a
+    to: supabase
+    via: MCP
